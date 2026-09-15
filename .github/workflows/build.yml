@@ -1,0 +1,37 @@
+name: Build Android APK (Manual)
+
+# 仅允许手动触发构建，点击 Run workflow 后直接运行
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉取代码
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      # 2. 设置 JDK 环境
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      # 3. 赋予 gradlew 执行权限
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 4. 编译 Release 版本的 APK（修改了这里）
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      # 5. 上传构建好的 Release APK 到 GitHub Artifacts（修改了这里）
+      - name: Upload Release APK Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-release-apk
+          path: app/build/outputs/apk/release/*.apk
